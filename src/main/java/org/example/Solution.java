@@ -5,6 +5,7 @@ import java.util.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 class SearchCriteria {
 
@@ -139,8 +140,63 @@ public class Solution {
                 }
             }
 
+            List<String> bestOffers = getBestOffers(offers, searchCriteria);
+
+            bestOffers.forEach(offer -> System.out.println(offer));
+
         } catch (Exception e) {
             System.out.println("exception in main program " + e.getMessage());
         }
+    }
+
+    static List<String> getBestOffers(List<Offer> offers, SearchCriteria searchCriteria) {
+
+        ArrayList<String> res = new ArrayList<>();
+
+        Map<String, List<Offer>> groupedOffers = offers.stream()
+                .filter(offer -> offer != null && isValidOffer(offer, searchCriteria))
+                .collect(Collectors.groupingBy(offer -> offer.getItineraryId()));
+
+        Map<String, Offer> bestOffer = groupedOffers.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> bestOffer(entry.getValue()),
+                        (o1, o2) -> o1,
+                        TreeMap::new
+                ));
+
+        for(Map.Entry<String, Offer> entry : bestOffer.entrySet()) {
+            String curOffer = entry.getKey() + " " + entry.getValue().getOfferId();
+
+            res.add(curOffer);
+        }
+
+        return res;
+    }
+
+    static Offer bestOffer(List<Offer> offers) {
+
+        Offer bestOffer = offers.stream()
+                .min(
+                  Comparator.comparing((Offer offer) -> offer.getPrice())
+                          .thenComparing(o -> !o.getIncludesBag())
+                          .thenComparing(o -> !o.getRefundable())
+                          .thenComparing(o -> o.getTotalDuration())
+                          .thenComparing(o -> o.getProviderCode())
+                ).orElse(null);
+
+        return bestOffer;
+    }
+
+    static boolean isValidOffer(Offer offer, SearchCriteria searchCriteria) {
+
+        return offer.getOfferId() != null && !offer.getOfferId().trim().isEmpty()
+                && offer.getItineraryId() != null && !offer.getItineraryId().trim().isEmpty()
+                && offer.getCurrency() != null && !offer.getCurrency().trim().isEmpty() && offer.getCurrency().equals(searchCriteria.getCurrency())
+                && offer.getPrice() > 0
+                && offer.getStops() <= searchCriteria.getMaxStops()
+                && offer.getTotalDuration() <= searchCriteria.getMaxTotalDuration()
+                && (!searchCriteria.getRequiredBag() || offer.getIncludesBag());
+
     }
 }
