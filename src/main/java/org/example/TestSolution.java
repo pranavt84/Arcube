@@ -38,6 +38,64 @@ public class TestSolution {
     }
 
 
+    @Test
+    public void testSampleTestCase2() {
+
+        SearchCriteria searchCriteria = getSearchCriteria("USD 2 600 true");
+
+        int n = 5;
+
+        List<String> offersLine = Arrays.asList(
+                "OFF002 ITN100 AAA 150.00 USD 1 300 true true",
+                "OFF002 ITN100 MMT 150.00 USD 1 300 true true",
+                "OFF002 ITN100 ABC 150.00 USD 1 300 true true"
+        );
+
+        List<Offer> offers = new ArrayList<>();
+
+        for (String line : offersLine) {
+            Offer offer =   getOffer(line);
+            if (offer == null) continue;
+            offers.add(offer);
+        }
+
+        List<String> actual = Solution.getBestOffers(offers, searchCriteria);
+
+        List<String> expected = Arrays.asList("ITN100 OFF002");
+
+        Assert.assertEquals(actual, expected);
+    }
+
+
+    @Test
+    public void testSampleTestCase3() {
+
+        SearchCriteria searchCriteria = getSearchCriteria("USD 1 600 true");
+
+        int n = 5;
+
+        List<String> offersLine = Arrays.asList(
+                "OFF002 ITN100 AAA 150.00 USD 1 300 true true",
+                "OFF002 ITN100 MMT 150.00 USD 1 300 true true",
+                "OFF002 ITN100 ABC 150.00 USD 1 300 true true"
+        );
+
+        List<Offer> offers = new ArrayList<>();
+
+        for (String line : offersLine) {
+            Offer offer =   getOffer(line);
+            if (offer == null) continue;
+            offers.add(offer);
+        }
+
+        List<String> actual = Solution.getBestOffers(offers, searchCriteria);
+
+        List<String> expected = Arrays.asList("ITN100 OFF002");
+
+        Assert.assertEquals(actual, expected);
+    }
+
+
     private SearchCriteria getSearchCriteria(String searchCriteriaInput) {
 
         String[] criteriaLine = searchCriteriaInput.split(" ");
